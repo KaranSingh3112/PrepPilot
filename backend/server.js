@@ -2,16 +2,17 @@ import express from "express"
 import "dotenv/config"
 import mongoose from "mongoose";
 import cors from "cors";
-
-app.use(express.json());
-app.use(cors());
+import authRoutes from "./routes/auth.js"
+import interviewRoutes from "./routes/interview.js"
 
 const app = express();
-let PORT = process.env.PORT || 8080;
+app.use(express.json({ limit: "10mb" }));
+app.use(cors());
 
-app.use("/",(req,res) => {
-    res.send("Backend of PrepPilot is running...")
-})
+app.use("/api/v1/auth",authRoutes);
+app.use("/api/v1/interview",interviewRoutes);
+
+let PORT = process.env.PORT || 8080;
 
 app.listen(PORT, ()=>{
     console.log(`App running on PORT ${PORT}`);
@@ -27,3 +28,12 @@ let connectDB = async() => {
         console.log(error);
     }
 }
+
+app.use((err,req,res,next) => {
+    console.error("Server Error: ", err.stack);
+    res.status(500).json({message: "Internal server error", error: err.message});
+})
+
+app.use("/",(req,res) => {
+    res.send("Backend of PrepPilot is running...")
+})
