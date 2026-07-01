@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 
-const questionSchema = newSchema({
+const questionSchema = new Schema({
     question: {
         type: String,
         required: true
@@ -29,7 +29,7 @@ const interviewSchema = new Schema({
         type: String,
         required: true
     },
-    skilss: [
+    skills: [
         {type: String}
     ],
     resumeName: {type: String},
@@ -56,4 +56,6 @@ const interviewSchema = new Schema({
 // Index user for faster history queries
 interviewSchema.index({ user: 1, createdAt: -1 });
 
-module.exports = mongoose.model("Interview", interviewSchema);
+const Interview = mongoose.model("Interview", interviewSchema);
+
+export default Interview;
