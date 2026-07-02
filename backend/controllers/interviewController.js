@@ -31,7 +31,7 @@ export const startInterview = async(req, res) => {
     })
 
     const interview = await Interview.create({
-        user: req.user._id,
+        user: req.user.id,
         jobRole,
         skills,
         resumeName: resumeName || 'resume',

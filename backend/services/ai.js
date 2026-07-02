@@ -1,35 +1,13 @@
-// ============================================================
-// services/ai.js
-// Purpose: All AI-related tasks:
-//   1. generateQuestion()  -> FR-4.10 / FR-3.6
-//   2. evaluateAnswer()    -> FR-4.8 / Section 7.2
-//   3. generateReport()    -> FR-4.12 / Section 7.3
-//
-// Uses OpenAI's API (OpenAI-compatible). 
-// If you want to use GrokAI (xAI), just change the baseURL:
-//   const client = new OpenAI({
-//     apiKey: process.env.XAI_API_KEY,
-//     baseURL: 'https://api.x.ai/v1'
-//   });
-//
-// Every function has a robust FALLBACK so that the system works
-// even when the AI API is down or the key is missing (great for
-// college project demos).
-// ============================================================
-// import OpenAI from "openai";
-import GroqAI from "groq";
+import Groq from "groq-sdk";
 
-const client = new GroqAI({
-  apiKey: process.env.GROKAI_API_KEY,
-  baseURL: 'https://api.x.ai/v1'
+const client = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
 });
 
 // Total number of questions per interview (FR-4.11)
 const TOTAL_QUESTIONS = 5;
 
-// ============================================================
 // Fallback questions if AI is unavailable
-// ============================================================
 const FALLBACK_QUESTIONS = [
   'Tell me about yourself and your background.',
   'What interests you about this role?',
@@ -40,10 +18,7 @@ const FALLBACK_QUESTIONS = [
   'Why should we hire you for this position?',
 ];
 
-// ============================================================
-// generateQuestion({ jobRole, skills, previousQuestions, previousAnswers })
-//   - Returns ONE interview question as a string.
-// ============================================================
+// generateQuestion(jobRole, skills, previousQuestions, previousAnswers)
 const generateQuestion = async ({
   jobRole,
   skills,
@@ -57,18 +32,18 @@ const generateQuestion = async ({
 
     const prompt = `You are a professional interviewer for a ${jobRole} position.
 
-Candidate's skills: ${skills.length ? skills.join(', ') : 'general'}.
+  Candidate's skills: ${skills.length ? skills.join(', ') : 'general'}.
 
-Previous interview Q&A so far:
-${history || '(none — this is the first question)'}
+  Previous interview Q&A so far:
+  ${history || '(none — this is the first question)'}
 
-Generate ONE thoughtful, contextual interview question. 
-- If this is the first question, ask a "tell me about yourself" style question tailored to ${jobRole}.
-- Otherwise, ask a question that builds on the candidate's previous answers.
-- Keep it under 30 words. Return ONLY the question text, no numbering, no quotes.`;
+  Generate ONE thoughtful, contextual interview question. 
+  - If this is the first question, ask a "tell me about yourself" style question tailored to ${jobRole}.
+  - Otherwise, ask a question that builds on the candidate's previous answers.
+  - Keep it under 30 words. Return ONLY the question text, no numbering, no quotes.`;
 
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
       max_tokens: 100,
       temperature: 0.7,
@@ -83,27 +58,25 @@ Generate ONE thoughtful, contextual interview question.
   }
 };
 
-// ============================================================
-// evaluateAnswer({ question, answer, jobRole })
-//   - Returns { score (1-10), feedback (string) }
-// ============================================================
+// evaluateAnswer(question, answer, jobRole)
+// Returns { score (1-10), feedback (string) }
 const evaluateAnswer = async ({ question, answer, jobRole }) => {
   try {
     const prompt = `You are evaluating a candidate's answer in a mock interview for a ${jobRole} role.
 
-Question: ${question}
-Candidate Answer: ${answer}
+  Question: ${question}
+  Candidate Answer: ${answer}
 
-Score the answer from 1 to 10 using these guidelines:
-- 8-10: Excellent — clear, specific, shows depth
-- 5-7:  Average — relevant but generic or missing detail
-- 1-4:  Poor — vague, irrelevant, or too short
+  Score the answer from 1 to 10 using these guidelines:
+  - 8-10: Excellent — clear, specific, shows depth
+  - 5-7:  Average — relevant but generic or missing detail
+  - 1-4:  Poor — vague, irrelevant, or too short
 
-Respond ONLY with valid JSON in this exact shape:
-{"score": <number 1-10>, "feedback": "<one short paragraph>"}`;
+  Respond ONLY with valid JSON in this exact shape:
+  {"score": <number 1-10>, "feedback": "<one short paragraph>"}`;
 
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       max_tokens: 200,
@@ -130,10 +103,8 @@ Respond ONLY with valid JSON in this exact shape:
   }
 };
 
-// ============================================================
 // generateReport({ jobRole, qaList, skills })
 //   - Returns the final interview report object.
-// ============================================================
 const generateReport = async ({ jobRole, qaList, skills }) => {
   try {
     const qaString = qaList
@@ -145,29 +116,29 @@ const generateReport = async ({ jobRole, qaList, skills }) => {
 
     const prompt = `Generate a final hiring report for a ${jobRole} candidate based on this interview.
 
-Candidate Skills: ${skills.join(', ')}
+  Candidate Skills: ${skills.join(', ')}
 
-Full Q&A transcript:
-${qaString}
+  Full Q&A transcript:
+  ${qaString}
 
-Recommendation rules (based on AVERAGE score):
-- avg >= 8   → "Strong Hire"
-- avg >= 6.5 → "Hire"
-- avg >= 5   → "Maybe"
-- avg < 5    → "No Hire"
+  Recommendation rules (based on AVERAGE score):
+  - avg >= 8   → "Strong Hire"
+  - avg >= 6.5 → "Hire"
+  - avg >= 5   → "Maybe"
+  - avg < 5    → "No Hire"
 
-Respond ONLY with valid JSON in this exact shape:
-{
-  "totalScore": <number, average rounded to 1 decimal>,
-  "recommendation": "<one of: Strong Hire | Hire | Maybe | No Hire>",
-  "strengths": ["<string>", "<string>", "<string>"],
-  "weaknesses": ["<string>", "<string>", "<string>"],
-  "suggestions": ["<string>", "<string>", "<string>"],
-  "detailedFeedback": "<one paragraph summary>"
-}`;
+  Respond ONLY with valid JSON in this exact shape:
+  {
+    "totalScore": <number, average rounded to 1 decimal>,
+    "recommendation": "<one of: Strong Hire | Hire | Maybe | No Hire>",
+    "strengths": ["<string>", "<string>", "<string>"],
+    "weaknesses": ["<string>", "<string>", "<string>"],
+    "suggestions": ["<string>", "<string>", "<string>"],
+    "detailedFeedback": "<one paragraph summary>"
+  }`;
 
     const completion = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'llama-3.3-70b-versatile',
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' },
       max_tokens: 1200,
@@ -202,4 +173,4 @@ Respond ONLY with valid JSON in this exact shape:
   }
 };
 
-export default {generateQuestion, evaluateAnswer, generateReport}
+export default { generateQuestion, evaluateAnswer, generateReport }
