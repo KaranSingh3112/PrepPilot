@@ -104,7 +104,7 @@ export const submitAnswer = async (req, res) => {
         previousQuestions,
         previousAnswers
     });
-    interview.qaList.push({question: nextQuestion});
+    interview.qaList.push({ question: nextQuestion });
     await interview.save();
     res.json({
         completed: false,
@@ -112,4 +112,22 @@ export const submitAnswer = async (req, res) => {
         questionNumber: interview.qaList.length,
         totalQuestions: TOTAL_QUESTIONS
     });
+}
+
+export const getInterview = async (req, res) => {
+    const interview = await Interview.findOne({
+        _id: req.params.id,
+        user: req.user.id
+    })
+    if (!interview) {
+        throw new ApiError(404, "Interview not found");
+    }
+    res.json(interview);
+}
+
+export const getHistory = async (req, res) => {
+    const interviews = await Interview.find({ user: req.user.id })
+        .sort({ createdAt: -1 })
+        .select('jobRole resumeName totalScore recommenation createdAt completed')
+    res.json(interviews)
 }
