@@ -1,0 +1,12 @@
+/* Tailwind's three magic lines */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scroll behavior for in-page navigation */
+html { scroll-behavior: smooth; }
+
+/* Apply a default body style for our light theme */
+body {
+  @apply bg-slate-50 text-slate-800 font-sans antialiased;
+}
