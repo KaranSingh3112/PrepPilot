@@ -12,7 +12,7 @@ app.use(cors());
 app.use("/api/v1/auth",authRoutes);
 app.use("/api/v1/interview",interviewRoutes);
 
-let PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, ()=>{
     console.log(`App running on PORT ${PORT}`);
@@ -29,6 +29,10 @@ let connectDB = async() => {
     }
 }
 
+app.use("/",(req,res) => {
+    res.send("Backend of PrepPilot is running...")
+})
+
 app.use((err, req, res, next) => {
   console.error('🔥 Error:', err);
   const statusCode = err.statusCode || 500;
@@ -40,6 +44,3 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.use("/",(req,res) => {
-    res.send("Backend of PrepPilot is running...")
-})

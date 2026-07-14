@@ -8,7 +8,7 @@ const generateToken = (id) => {
 };
 
 const formatUser = (user) => ({
-    id: user._id,
+    id: user.id,
     name: user.username,
     email: user.email
 });
@@ -57,6 +57,7 @@ export const login = async (req,res) => {
 };
 
 export const me = async(req,res) => {
+    
     res.json({
         user: formatUser(req.user)
     });
