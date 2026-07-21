@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import { useAuth } from '../context/AuthContext'
 import { Link, useNavigate } from 'react-router-dom';
 import PublicNavbar from '../components/PublicNavbar';
+import FeatureCard from '../components/FeatureCard';
 
 export default function LandingPage() {
   const { user } = useAuth();
@@ -51,14 +52,33 @@ export default function LandingPage() {
       </section>
 
 
-      <section>
-        <div>
-          <h2>
-            {/* How It Works */}
+      <section className='bg-slate-50 border-y border-slate-200 py-16'>
+        <div className='max-w-6xl mx-auto px-4'>
+          <h2 className='text-sm font-semibold text-slate-500 uppercase tracking-wider text-center mb-10'>
+            How It Works
           </h2>
-            {/* Todo */}
-          <div>
-            
+
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5'>
+            <FeatureCard 
+              icon={<span className="text-2xl">📄</span>}
+              title="Resume Parsing"
+              description="Upload your PDF or DOCX resume. We extract your skills and experience automatically."
+            />
+            <FeatureCard 
+              icon={<span className="text-2xl">🎤</span>}
+              title="Voice Interview"
+              description="Answer AI-generated questions using your microphone. Real-time transcript as you speak."
+            />
+            <FeatureCard
+              icon={<span className="text-2xl">⭐</span>}
+              title="AI Evaluation"
+              description="Each answer is scored 1-10 by AI with specific, actionable feedback."
+            />
+            <FeatureCard
+              icon={<span className="text-2xl">📊</span>}
+              title="Performance Report"
+              description="Get a hiring recommendation, strengths, weaknesses, and improvement suggestions."
+            />
           </div>
 
         </div>
