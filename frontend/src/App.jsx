@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext'
 import Dashboard from './pages/Dashboard'
 import History from './pages/History'
 import Upload from './pages/Upload'
+import Interview from './pages/Interview'
 
 function App() {
   return(
@@ -16,6 +17,7 @@ function App() {
         <Route path='/dashboard' element={ <Dashboard /> } />
         <Route path='/history' element={ <History /> } />
         <Route path='/upload' element={ <Upload /> } />
+        <Route path='/interview/:id' element={ <Interview /> }/>
       </Routes>
    </AuthProvider> 
   );
