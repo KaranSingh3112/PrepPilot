@@ -38,7 +38,7 @@ const interviewSchema = new Schema({
         type: Number,
         default: null
     },
-    recomendation: {
+    recommendation: {
         type: String,
         enum: ['Strong Hire', 'Hire', 'Maybe', 'No Hire', null],
         default: null
@@ -46,7 +46,7 @@ const interviewSchema = new Schema({
     strengths: [{type: String}],
     weakness: [{type: String}],
     suggestions: [{type: String}],
-    detailesFeedback: {
+    detailedFeedback: {
         type: String,
         default: ''
     },

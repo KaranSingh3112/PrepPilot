@@ -1,7 +1,8 @@
 import Loader from "./Loader";
 import { Navigate } from "react-router-dom"
 
-const { Children } = require("react");
+import { children } from "react";
+import { useAuth } from "../context/AuthContext";
 
 
 const ProtectedRoute = ({ children }) => {

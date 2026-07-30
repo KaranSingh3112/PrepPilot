@@ -14,7 +14,7 @@ const Interview = () => {
   // ---- State ----
   const [question, setQuestion]         = useState('');
   const [questionNumber, setQN]         = useState(1);
-  const [totalQuestions, setTQ]         = useState(7);
+  const [totalQuestions, setTQ]         = useState(5);
   const [transcript, setTranscript]     = useState('');
   const [isListening, setIsListening]   = useState(false);
   const [isSpeaking, setIsSpeaking]     = useState(false);

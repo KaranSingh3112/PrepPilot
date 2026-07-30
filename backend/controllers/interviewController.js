@@ -72,10 +72,10 @@ export const submitAnswer = async (req, res) => {
     });
     interview.qaList[currentIndex].answer = answer;
     interview.qaList[currentIndex].score = evaluation.score;
-    interview.qaList[currentIndex].feedback = (await evaluation).feedback;
+    interview.qaList[currentIndex].feedback = evaluation.feedback;
 
     if (interview.qaList.length >= TOTAL_QUESTIONS) {
-        const report = await ai.generateQuestion({
+        const report = await ai.generateReport({
             jobRole: interview.jobRole,
             qaList: interview.qaList,
             skills: interview.skills
@@ -84,7 +84,7 @@ export const submitAnswer = async (req, res) => {
         interview.totalScore = report.totalScore;
         interview.recommendation = report.recommendation;
         interview.strengths = report.strengths;
-        interview.weaknesses = report.weaknesses;
+        interview.weakness = report.weaknesses;
         interview.suggestions = report.suggestions;
         interview.detailedFeedback = report.detailedFeedback;
         interview.completed = true;
@@ -128,6 +128,6 @@ export const getInterview = async (req, res) => {
 export const getHistory = async (req, res) => {
     const interviews = await Interview.find({ user: req.user.id })
         .sort({ createdAt: -1 })
-        .select('jobRole resumeName totalScore recommenation createdAt completed')
+        .select('jobRole resumeName totalScore recommendation createdAt completed')
     res.json(interviews)
 }
