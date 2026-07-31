@@ -21,6 +21,7 @@ function App() {
         <Route path='/upload' element={ <ProtectedRoute><Upload /></ProtectedRoute> } />
         <Route path='/interview/:id' element={ <ProtectedRoute><Interview /></ProtectedRoute> }/>
         <Route path='/report/:id' element={ <ProtectedRoute><Report /></ProtectedRoute> } />
+        <Route path='*' element={ <h1>404 Not Found</h1> } />
       </Routes>
    </AuthProvider> 
   );
