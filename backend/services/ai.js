@@ -11,13 +11,16 @@ const AI_MODEL = "llama-3.3-70b-versatile";
 
 // Generic fallback questions
 const FALLBACK_QUESTIONS = [
-  "Tell me about yourself.",
-  "What interests you about this role?",
-  "Describe a project you are proud of.",
-  "How do you solve technical problems?",
-  "Why should we hire you?",
-  "Describe a difficult bug you fixed.",
-  "What would you like to improve technically?"
+  "Tell me about yourself and what led you to this field.",
+  "What interests you most about this role and why?",
+  "Describe a project you are proud of and the problem it solved.",
+  "How do you approach solving a technical problem from scratch?",
+  "Why should we hire you for this position?",
+  "Describe a difficult bug you fixed and how you resolved it.",
+  "What technical skill are you currently improving and why?",
+  "What was your most challenging project and what did you learn?",
+  "How do you keep your backend skills sharp in a changing industry?",
+  "What makes your experience unique for this role?"
 ];
 
 // Curated Question Banks
@@ -57,7 +60,9 @@ const ROLE_BANKS = {
   },
   "Backend Developer": {
     introduction: [
-      "Tell me about your backend development experience."
+      "Tell me about your backend development experience.",
+      "What inspired you to choose backend engineering?",
+      "Describe your approach to building scalable backend systems."
     ],
     fundamentals: [
       "Explain REST APIs.",
@@ -69,21 +74,26 @@ const ROLE_BANKS = {
     practical: [
       "How would you secure a REST API?",
       "How would you design authentication?",
-      "How do you upload files using Node?"
+      "How do you upload files using Node?",
+      "How would you handle rate limiting in an API?"
     ],
     tools: [
       "How do you debug Node.js?",
       "Explain Postman workflow.",
-      "How do you monitor APIs?"
+      "How do you monitor APIs?",
+      "How do you use logging to investigate backend issues?"
     ],
     scenario: [
-      "Your API suddenly becomes slow. What steps will you take?"
+      "Your API suddenly becomes slow. What steps will you take?",
+      "A database query is timing out in production. How do you troubleshoot it?"
     ],
     project: [
-      "Explain your backend architecture."
+      "Explain your backend architecture.",
+      "Describe a backend project where you optimized performance."
     ],
     closing: [
-      "Why are you interested in backend development?"
+      "Why are you interested in backend development?",
+      "What makes you a strong backend developer candidate?"
     ]
   },
   "MERN Stack Developer": {
@@ -254,8 +264,42 @@ Candidate Answer: ${previousAnswers[i] || "No answer"}
           )
           .join("\n");
 
+    const skillsText = skills.length
+      ? `mention your experience with ${skills.slice(0, 3).join(", ")}`
+      : "share your background and interest in this field";
+
+    const sessionStyles = [
+      "senior engineering manager",
+      "technical lead",
+      "hiring manager",
+      "experienced peer interviewer",
+      "product-focused backend interviewer",
+    ];
+    const sessionStyle = sessionStyles[Math.floor(Math.random() * sessionStyles.length)];
+
+    const followUpThemes = [
+      skills.length ? `your experience with ${skills[0]}` : "your core technical skills",
+      skills.length ? `how you applied ${skills[0]}` : "how you solved a technical problem",
+      "a project where you improved performance",
+      "a challenge you resolved in production",
+      "your approach to architecture and design",
+      "your process for debugging and troubleshooting",
+      "your collaboration with other teams",
+      "how you planned deployment and CI/CD",
+    ];
+    const followUpFocus = followUpThemes[Math.floor(Math.random() * followUpThemes.length)];
+
+    if (interviewRound === 1) {
+      const introVariants = [
+        `Introduce yourself and explain why you are a strong fit for this ${jobRole} role, and ${skillsText}.`,
+        `Tell me about your background and why this ${jobRole} role suits you, including ${skillsText}.`,
+        `Introduce yourself and describe why your experience makes you a good fit for this ${jobRole} role, mentioning ${skillsText}.`,
+      ];
+      return introVariants[Math.floor(Math.random() * introVariants.length)];
+    }
+
     const prompt = `
-You are a Senior Technical Interviewer.
+You are a realistic technical interviewer with the style of a ${sessionStyle}.
 
 You are interviewing a candidate for the role:
 
@@ -273,38 +317,22 @@ ${history}
 
 Instructions:
 
-1. Ask ONLY ONE interview question.
-
-2. Never repeat a previous question.
-
-3. If this is Question 1:
-- Ask a friendly "Tell me about yourself" style question related to ${jobRole}.
-
-4. If this is Question 2-5:
-- Ask technical questions.
-- Mix theory and practical knowledge.
-- Prefer skills mentioned in the resume.
-- Increase difficulty gradually.
-
-5. If this is Question 6-7:
-- Ask scenario-based or project-based questions.
-- Test problem-solving ability.
-- Avoid basic definitions.
-
-6. The question should:
-- Be under 30 words.
-- Be natural.
-- Sound like a real interviewer.
-- Not include numbering.
-- Not include quotation marks.
+1. Ask ONLY ONE easy-to-moderate interview question.
+2. Keep the question concise and under 20 words.
+3. Never repeat a previous question.
+4. Use the follow-up focus: ${followUpFocus}.
+5. Keep the tone natural and conversational, like a live technical interview.
+6. Use a different phrasing than earlier questions in this interview.
+7. Do not use numbering, bullet lists, or quotation marks.
+8. Do not rely on a fixed question bank.
 
 Return ONLY the question.
 `;
 
     const completion = await client.chat.completions.create({
       model: AI_MODEL,
-      temperature: 0.7,
-      max_tokens: 120,
+      temperature: 0.9,
+      max_tokens: 90,
       messages: [
         {
           role: "user",
@@ -331,7 +359,45 @@ Return ONLY the question.
       q => normalize(q) === normalize(question)
     );
 
-    if (isDuplicate) {
+    if (isDuplicate || !question) {
+      const retryPrompt = `
+You are a Senior Technical Interviewer.
+
+Generate a new easy-to-moderate interview question for the role ${jobRole}.
+The previous questions were:
+${previousQuestions.map((q, i) => `${i + 1}. ${q}`).join("\n")}
+Do not repeat or rephrase any previous question.
+Use your own knowledge rather than a fixed question bank.
+Return ONLY the question.
+`;
+
+      const retryCompletion = await client.chat.completions.create({
+        model: AI_MODEL,
+        temperature: 0.9,
+        max_tokens: 120,
+        messages: [
+          {
+            role: "user",
+            content: retryPrompt,
+          },
+        ],
+      });
+
+      let retryQuestion =
+        retryCompletion.choices?.[0]?.message?.content?.trim() || "";
+      retryQuestion = retryQuestion
+        .replace(/^['"]|['"]$/g, "")
+        .replace(/^Question[:\d\s-]*/i, "")
+        .trim();
+
+      const isRetryDuplicate = previousQuestions.some(
+        q => normalize(q) === normalize(retryQuestion)
+      );
+
+      if (!isRetryDuplicate && retryQuestion) {
+        return retryQuestion;
+      }
+
       return getFallbackQuestion(jobRole, previousQuestions.length);
     }
     return question;
@@ -657,8 +723,21 @@ Return ONLY valid JSON.
       ? report.recommendation
       : "Maybe";
 
+    const parsedTotalScore = (() => {
+      if (typeof report.totalScore === "number") return report.totalScore;
+      if (typeof report.totalScore === "string") {
+        const match = report.totalScore.match(/[0-9]+(?:\.[0-9]+)?/);
+        if (match) return Number(match[0]);
+      }
+      return NaN;
+    })();
+
+    const totalScore = Number.isFinite(parsedTotalScore)
+      ? parsedTotalScore
+      : Number(average.toFixed(1));
+
     return {
-      totalScore: Number(report.totalScore) || Number(average.toFixed(1)),
+      totalScore: Math.min(10, Math.max(1, Number(totalScore.toFixed(1)))),
       recommendation,
 
       strengths:

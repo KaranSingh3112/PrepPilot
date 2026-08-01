@@ -109,7 +109,7 @@ export const submitAnswer = async (req, res) => {
             qaList: interview.qaList,
             skills: interview.skills,
         });
-        interview.totalScore = report.totalScore;
+        interview.totalScore = Math.min(10, Math.max(1, Number(report.totalScore)));
         interview.recommendation = report.recommendation;
         interview.strengths = report.strengths;
         interview.weakness = report.weaknesses;
@@ -144,6 +144,67 @@ export const submitAnswer = async (req, res) => {
         questionNumber: interview.qaList.length,
         totalQuestions: TOTAL_QUESTIONS,
         averageScore: Number(averageScore.toFixed(1)),
+    });
+};
+
+export const endInterview = async (req, res) => {
+    const { id } = req.params;
+
+    const interview = await Interview.findOne({
+        _id: id,
+        user: req.user.id,
+    });
+
+    if (!interview) {
+        throw new ApiError(404, "Interview not found!");
+    }
+
+    if (interview.completed) {
+        throw new ApiError(400, "Interview already completed.");
+    }
+
+    const answeredQas = interview.qaList.filter(
+        (qa) => qa.answer && qa.score != null
+    );
+
+    if (!answeredQas.length) {
+        interview.completed = true;
+        interview.totalScore = null;
+        interview.recommendation = null;
+        interview.strengths = [];
+        interview.weakness = [];
+        interview.suggestions = [];
+        interview.detailedFeedback =
+            "Interview ended by user before any answers were submitted.";
+        await interview.save();
+        return res.json({
+            completed: true,
+            interviewId: interview._id,
+            message: "Interview ended before answering any questions.",
+        });
+    }
+
+    const report = await ai.generateReport({
+        jobRole: interview.jobRole,
+        qaList: answeredQas,
+        skills: interview.skills,
+    });
+
+    interview.totalScore = Math.min(10, Math.max(1, Number(report.totalScore)));
+    interview.recommendation = report.recommendation;
+    interview.strengths = report.strengths;
+    interview.weakness = report.weaknesses;
+    interview.suggestions = report.suggestions;
+    interview.detailedFeedback = report.detailedFeedback;
+    interview.completed = true;
+    await interview.save();
+
+    return res.json({
+        completed: true,
+        interviewId: interview._id,
+        totalScore: interview.totalScore,
+        recommendation: interview.recommendation,
+        message: "Interview ended by user.",
     });
 };
 

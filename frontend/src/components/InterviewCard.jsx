@@ -26,12 +26,17 @@ const InterviewCard = ({ interview }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          {interview.totalScore !== null && (
+          {interview.totalScore !== null ? (
             <div className="text-right">
               <p className="text-2xl font-bold text-slate-800">{interview.totalScore}</p>
               <p className="text-xs text-slate-500">/ 10</p>
             </div>
+          ) : (
+            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600">
+              Interview not completed
+            </span>
           )}
+
           {interview.recommendation && (
             <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeColors[interview.recommendation] || 'bg-slate-100 text-slate-700'}`}>
               {interview.recommendation}

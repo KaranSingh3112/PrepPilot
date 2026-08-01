@@ -19,6 +19,7 @@ const Interview = () => {
   const [isListening, setIsListening]   = useState(false);
   const [isSpeaking, setIsSpeaking]     = useState(false);
   const [submitting, setSubmitting]     = useState(false);
+  const [ending, setEnding]             = useState(false);
   const [loading, setLoading]           = useState(true);
 
   // Refs (mutable values that don't trigger re-renders)
@@ -135,6 +136,21 @@ const Interview = () => {
     }
   };
 
+  const endInterview = async () => {
+    if (!window.confirm('End the interview now? You will be taken to the report page for the answered questions.') ) {
+      return;
+    }
+    setEnding(true);
+    try {
+      await api.post(`/interview/${id}/end`);
+      toast.success('Interview ended. Generating report...');
+      navigate(`/report/${id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to end interview');
+    } finally {
+      setEnding(false);
+    }
+  };
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -157,7 +173,7 @@ const Interview = () => {
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-slate-600">
-              Question {questionNumber} of {totalQuestions}
+              Question {questionNumber}
             </span>
             <span className="text-sm text-slate-500">
               {Math.round((questionNumber / totalQuestions) * 100)}%
@@ -224,18 +240,26 @@ const Interview = () => {
           </div>
         </div>
 
-        {/* Next button */}
-        <button
-          onClick={submitAnswer}
-          disabled={submitting || !transcript.trim()}
-          className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition"
-        >
-          {submitting
-            ? 'Evaluating...'
-            : questionNumber === totalQuestions
-              ? 'Finish Interview'
-              : 'Next Question →'}
-        </button>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={submitAnswer}
+            disabled={submitting || !transcript.trim()}
+            className="w-full py-3 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition"
+          >
+            {submitting
+              ? 'Evaluating...'
+              : questionNumber === totalQuestions
+                ? 'Finish Interview'
+                : 'Next Question →'}
+          </button>
+          <button
+            onClick={endInterview}
+            disabled={ending}
+            className="w-full py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition"
+          >
+            {ending ? 'Ending Interview...' : 'End Interview'}
+          </button>
+        </div>
       </div>
     </div>
   );
