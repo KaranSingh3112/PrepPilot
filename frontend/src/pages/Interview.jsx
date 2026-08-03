@@ -332,11 +332,11 @@ const Interview = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="h-screen bg-slate-50 overflow-hidden">
       <Navbar />
 
-      <div className="min-h-screen max-w-7xl mx-auto px-4 py-6 flex flex-col gap-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="h-[calc(100vh-4rem)] max-w-7xl mx-auto px-4 py-4 flex flex-col gap-4 overflow-hidden">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-sm font-semibold text-slate-600">Question {questionNumber}</p>
             <p className="text-xs text-slate-500">{Math.round((questionNumber / totalQuestions) * 100)}%</p>
@@ -349,11 +349,11 @@ const Interview = () => {
           </div>
         </div>
 
-        <div className="flex-1 flex flex-col gap-6 overflow-hidden md:flex-row">
-          <div className="flex-1 min-h-0 flex flex-col gap-6 overflow-hidden">
-            <div className="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm h-full flex flex-col overflow-hidden">
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div className="flex-1 max-h-[180px] overflow-auto pr-2">
+        <div className="flex-1 flex flex-col gap-4 overflow-hidden md:flex-row">
+          <div className="flex-1 min-h-0 flex flex-col gap-4 overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm h-full flex flex-col overflow-hidden">
+              <div className="flex items-start justify-between gap-4 mb-3">
+                <div className="flex-1 max-h-[170px] overflow-auto pr-2">
                   <h2 className="text-xl font-semibold text-slate-800 leading-relaxed break-words">
                     {question}
                   </h2>
@@ -368,21 +368,21 @@ const Interview = () => {
               </div>
 
               {isSpeaking && (
-                <p className="text-xs text-brand-600 font-medium mb-4">🔊 Speaking...</p>
+                <p className="text-xs text-brand-600 font-medium mb-3">🔊 Speaking...</p>
               )}
 
-              <div className="mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex-1 min-h-0 overflow-hidden">
+              <div className="mt-2 bg-slate-50 border border-slate-200 rounded-2xl p-4 flex-1 min-h-0 overflow-hidden">
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                   Your Answer
                 </p>
-                <div className="text-slate-700 leading-relaxed overflow-auto min-h-0 max-h-[calc(100%-36px)]">
+                <div className="text-slate-700 leading-relaxed overflow-auto min-h-0 h-full">
                   {transcript || <span className="text-slate-400 italic">Your answer will appear here...</span>}
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="w-full md:max-w-[420px] flex flex-col gap-6 overflow-hidden">
+          <div className="w-full md:w-[420px] flex flex-col gap-4 overflow-hidden">
             <div className="bg-white border border-slate-200 rounded-2xl p-0 shadow-sm h-full flex flex-col overflow-hidden">
               <div className="flex items-center justify-between gap-4 p-4 border-b border-slate-200">
                 <div>
@@ -405,8 +405,8 @@ const Interview = () => {
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 flex-none">
-          <div className="bg-white border border-slate-200 rounded-full p-1 shadow-sm flex flex-col gap-4 items-center justify-center sm:flex-row sm:gap-4">
+        <div className="flex-none flex flex-col gap-3">
+          <div className="bg-white border border-slate-200 rounded-full p-3 shadow-sm flex flex-col gap-3 items-center justify-center sm:flex-row sm:gap-4">
             <button
               onClick={isListening ? stopListening : startListening}
               disabled={submitting}
@@ -424,7 +424,7 @@ const Interview = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <button
               onClick={submitAnswer}
               disabled={submitting || !transcript.trim()}
