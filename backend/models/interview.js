@@ -17,6 +17,10 @@ const questionSchema = new Schema({
         type: String,
         default: ''
     },
+    cameraEvidence: {
+        type: String,
+        default: null
+    },
 },{ _id: false })
 
 const interviewSchema = new Schema({

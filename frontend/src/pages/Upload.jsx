@@ -17,12 +17,14 @@ const JOB_ROLES = [
   'UI/UX Designer',
   'Product Manager',
   'Software Engineer',
+  'Other',
 ]
 
 const Upload = () => {
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
-  const [jobRole, setJobRole] = useState(null)
+  const [jobRole, setJobRole] = useState('');
+  const [customRole, setCustomRole] = useState('');
   const [loading, setLoading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const inputRef = useRef(null);
@@ -56,7 +58,10 @@ const Upload = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file) return toast.error('Please upload your resume');
-    if (!jobRole) return toast.error('Please select a target role');
+
+    const selectedRole = jobRole === 'Other' ? customRole.trim() : jobRole;
+    if (!selectedRole) return toast.error('Please select or enter a target role');
+
     setLoading(true)
 
     try {
@@ -68,7 +73,7 @@ const Upload = () => {
         resumeBase64: base64,
         resumeName: file.name,
         mimeType: file.type,
-        jobRole,
+        jobRole: selectedRole,
       });
       toast.success('Interview starting!');
       // Redirect to the interview page using the ID backend returned
@@ -154,6 +159,15 @@ const Upload = () => {
                 </option>
               ))}
             </select>
+            {jobRole === 'Other' && (
+              <input
+                type="text"
+                value={customRole}
+                onChange={(e) => setCustomRole(e.target.value)}
+                placeholder="Enter your custom role"
+                className="mt-3 w-full px-3.5 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none bg-white transition"
+              />
+            )}
           </div>
 
           {/* Submit */}

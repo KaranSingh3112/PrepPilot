@@ -48,7 +48,7 @@ export const startInterview = async (req, res) => {
 };
 
 export const submitAnswer = async (req, res) => {
-    const { answer } = req.body;
+    const { answer, cameraEvidence } = req.body;
     const { id } = req.params;
 
     if (!answer || !answer.trim()) {
@@ -79,6 +79,9 @@ export const submitAnswer = async (req, res) => {
     interview.qaList[currentIndex].answer = answer;
     interview.qaList[currentIndex].score = evaluation.score;
     interview.qaList[currentIndex].feedback = evaluation.feedback;
+    if (cameraEvidence) {
+        interview.qaList[currentIndex].cameraEvidence = cameraEvidence;
+    }
 
 
     // Calculate current average
